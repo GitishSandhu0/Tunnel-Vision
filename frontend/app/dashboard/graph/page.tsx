@@ -6,7 +6,7 @@ import GraphPageClient from "@/components/dashboard/GraphPageClient";
 export const metadata = { title: "Knowledge Graph" };
 
 export default async function GraphPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

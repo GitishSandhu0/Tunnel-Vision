@@ -6,7 +6,7 @@ import UploadClient from "@/components/dashboard/UploadClient";
 export const metadata = { title: "Upload Data" };
 
 export default async function UploadPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

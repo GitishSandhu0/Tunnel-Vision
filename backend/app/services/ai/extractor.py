@@ -83,7 +83,6 @@ class AIExtractor:
             google_api_key=self._settings.GEMINI_API_KEY,
             temperature=0.1,          # low temp for consistent structured output
             max_output_tokens=4096,
-            convert_system_message_to_human=True,
         )
 
     # ------------------------------------------------------------------

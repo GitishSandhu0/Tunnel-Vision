@@ -10,7 +10,7 @@ Tunnel Vision is a B2C SaaS application that ingests your exported social media 
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Next.js 14 (App Router), React, TypeScript, Tailwind CSS, Framer Motion |
+| **Frontend** | Next.js 15 (App Router), React, TypeScript, Tailwind CSS, Framer Motion |
 | **Graph Visualisation** | react-force-graph (WebGL / Three.js) |
 | **Authentication** | Supabase Auth |
 | **Backend API** | Python + FastAPI (Render Free Web Service) |
