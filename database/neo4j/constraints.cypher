@@ -53,6 +53,14 @@ FOR (a:GDELTArticle) REQUIRE a.url IS UNIQUE;
 
 
 // ---------------------------------------------------------------------------
+// WORLD EVENT nodes  –  current global events sourced from GDELT (refreshed daily)
+// keyed by canonical article URL
+// ---------------------------------------------------------------------------
+CREATE CONSTRAINT world_event_url_unique IF NOT EXISTS
+FOR (w:WorldEvent) REQUIRE w.url IS UNIQUE;
+
+
+// ---------------------------------------------------------------------------
 // Supporting indexes for fast lookup and traversal
 // ---------------------------------------------------------------------------
 
@@ -79,3 +87,7 @@ FOR (a:GDELTArticle) ON (a.domain);
 // GDELTArticle lookup by seen_date (useful for time-range queries)
 CREATE INDEX gdelt_article_seen_date_index IF NOT EXISTS
 FOR (a:GDELTArticle) ON (a.seen_date);
+
+// WorldEvent lookup by fetched_at (used for ORDER BY in tunnel-vision score queries)
+CREATE INDEX world_event_fetched_at_index IF NOT EXISTS
+FOR (w:WorldEvent) ON (w.fetched_at);

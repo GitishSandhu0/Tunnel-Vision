@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.core.neo4j_client import close_driver, get_driver
-from app.api.routes import health, ingest, graph, recommendations, gdelt
+from app.api.routes import health, ingest, graph, recommendations, gdelt, tunnel_vision
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +82,7 @@ def create_app() -> FastAPI:
     app.include_router(graph.router, prefix="/graph", tags=["Graph"])
     app.include_router(recommendations.router, prefix="/recommendations", tags=["Recommendations"])
     app.include_router(gdelt.router, prefix="/gdelt", tags=["GDELT"])
+    app.include_router(tunnel_vision.router, prefix="/tunnel-vision", tags=["Tunnel Vision"])
 
     # ------------------------------------------------------------------
     # Exception handlers
