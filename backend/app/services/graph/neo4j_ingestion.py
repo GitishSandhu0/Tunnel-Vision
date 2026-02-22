@@ -7,6 +7,7 @@ from neo4j.exceptions import Neo4jError
 
 from app.core.neo4j_client import get_driver
 from app.models.entities import ExtractionResult
+from app.models.gdelt import GDELTArticle
 from app.models.graph import GraphData, GraphEdge, GraphNode, GraphStats
 
 logger = logging.getLogger(__name__)
@@ -284,6 +285,90 @@ async def get_graph_stats(user_id: str) -> GraphStats:
         top_entities=top_entities,
         top_categories=top_categories,
     )
+
+
+# ---------------------------------------------------------------------------
+# GDELT article ingestion
+# ---------------------------------------------------------------------------
+
+
+async def ingest_gdelt_articles(entity_name: str, articles: List[GDELTArticle]) -> int:
+    """
+    Persist GDELT news articles into Neo4j and link them to an existing Entity node.
+
+    For each article a ``GDELTArticle`` node is upserted (keyed by URL) and a
+    ``MENTIONED_IN`` edge is created from the matching :Entity node.
+
+    Returns:
+        The number of articles successfully written/updated.
+    """
+    if not articles:
+        return 0
+
+    driver = get_driver()
+    written = 0
+
+    async with driver.session(database="neo4j") as session:
+        # Verify the Entity node exists before attempting to link articles to it.
+        entity_check = await session.run(
+            "MATCH (e:Entity {name: $name}) RETURN count(e) AS cnt",
+            name=entity_name,
+        )
+        record = await entity_check.single()
+        if not record or record["cnt"] == 0:
+            logger.warning(
+                "GDELT ingestion skipped: no Entity node found for '%s'", entity_name
+            )
+            return 0
+
+        for article in articles:
+            if not article.url:
+                continue
+            try:
+                await session.run(
+                    """
+                    MERGE (a:GDELTArticle {url: $url})
+                      ON CREATE SET
+                        a.title          = $title,
+                        a.domain         = $domain,
+                        a.seen_date      = $seen_date,
+                        a.language       = $language,
+                        a.source_country = $source_country,
+                        a.social_image   = $social_image,
+                        a.created        = datetime()
+                      ON MATCH SET
+                        a.title          = $title,
+                        a.last_refreshed = datetime()
+
+                    WITH a
+                    MATCH (e:Entity {name: $entity_name})
+                    MERGE (e)-[:MENTIONED_IN]->(a)
+                    """,
+                    url=article.url,
+                    title=article.title,
+                    domain=article.domain,
+                    seen_date=article.seen_date,
+                    language=article.language,
+                    source_country=article.source_country,
+                    social_image=article.social_image,
+                    entity_name=entity_name,
+                )
+                written += 1
+            except Neo4jError as exc:
+                logger.warning(
+                    "Failed to ingest GDELT article '%s' for entity '%s': %s",
+                    article.url,
+                    entity_name,
+                    exc,
+                )
+
+    logger.info(
+        "GDELT ingestion for entity '%s': %d/%d articles written",
+        entity_name,
+        written,
+        len(articles),
+    )
+    return written
 
 
 # ---------------------------------------------------------------------------
