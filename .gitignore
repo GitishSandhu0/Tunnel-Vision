@@ -1,0 +1,48 @@
+# ─── Node / Next.js ────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# ─── Python / FastAPI ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.so
+
+# ─── Environment files ─────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+
+# ─── Uploads (temp files) ──────────────────────────────────────────
+uploads/
+tmp/
+*.tmp
+
+# ─── IDE / OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ─── Logs ──────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Test artifacts ────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+coverage.xml
