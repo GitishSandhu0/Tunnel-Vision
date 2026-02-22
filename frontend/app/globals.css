@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Custom Properties ─────────────────────────────────────────── */
+:root {
+  --font-geist: "Inter", sans-serif;
+  --color-obsidian: #0a0a0f;
+  --color-midnight: #0d1117;
+  --color-neon-blue: #3b82f6;
+  --color-neon-purple: #8b5cf6;
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #e2e8f0;
+  font-family: var(--font-geist), "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) #0a0a0f;
+}
+
+/* ─── Glassmorphism Utilities ────────────────────────────────────── */
+@layer components {
+  .glass {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-strong {
+    @apply backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl;
+    box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    @apply backdrop-blur-xl rounded-2xl border;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-2xl rounded-3xl border;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  /* ─── Glow Text ─── */
+  .glow-text {
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.7))
+      drop-shadow(0 0 30px rgba(59, 130, 246, 0.3));
+  }
+
+  .glow-text-purple {
+    filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.7))
+      drop-shadow(0 0 30px rgba(139, 92, 246, 0.3));
+  }
+
+  /* ─── Grid Background ─── */
+  .bg-grid {
+    background-image: linear-gradient(
+        rgba(59, 130, 246, 0.07) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .bg-grid-sm {
+    background-image: linear-gradient(
+        rgba(59, 130, 246, 0.04) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* ─── Neon Buttons ─── */
+  .btn-neon {
+    @apply relative overflow-hidden px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.35);
+  }
+
+  .btn-neon:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6),
+      0 0 60px rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn-neon:active {
+    transform: translateY(0);
+  }
+
+  .btn-glass {
+    @apply glass px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 text-white/80 hover:text-white;
+  }
+
+  .btn-glass:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* ─── Input Styles ─── */
+  .input-glass {
+    @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 outline-none transition-all duration-200;
+  }
+
+  .input-glass:focus {
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* ─── Sidebar nav item ─── */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white transition-all duration-200 cursor-pointer text-sm font-medium;
+  }
+
+  .nav-item:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: white;
+  }
+
+  .nav-item.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: white;
+    border-left: 2px solid #3b82f6;
+  }
+}
+
+/* ─── Particle Animation Keyframes ──────────────────────────────── */
+@keyframes particle-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  25%       { transform: translate(15px, -25px) scale(1.1); opacity: 1; }
+  50%       { transform: translate(-10px, -15px) scale(0.9); opacity: 0.5; }
+  75%       { transform: translate(20px, -35px) scale(1.05); opacity: 0.8; }
+}
+
+@keyframes particle-float-2 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.4; }
+  33%       { transform: translate(-20px, -30px); opacity: 0.9; }
+  66%       { transform: translate(25px, -20px); opacity: 0.5; }
+}
+
+@keyframes particle-float-3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+  50%       { transform: translate(10px, -40px) rotate(180deg); opacity: 1; }
+}
+
+@keyframes data-stream {
+  0%   { transform: translateY(0) scaleY(0); opacity: 0; }
+  10%  { opacity: 1; scaleY: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-100vh) scaleY(1); opacity: 0; }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+/* ─── Selection ──────────────────────────────────────────────────── */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+}
