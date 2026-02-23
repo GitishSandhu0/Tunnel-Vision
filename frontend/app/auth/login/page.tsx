@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Sparkles, LogIn } from "lucide-react";
@@ -10,7 +10,6 @@ import ParticleBackground from "@/components/ui/ParticleBackground";
 import Button from "@/components/ui/Button";
 
 export default function LoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/dashboard";
 
@@ -37,8 +36,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push(next);
-    router.refresh();
+    window.location.href = next;
   }
 
   return (
