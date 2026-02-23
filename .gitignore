@@ -4,6 +4,7 @@ node_modules/
 out/
 dist/
 build/
+package-lock.json
 
 # ─── Python / FastAPI ──────────────────────────────────────────────
 __pycache__/
