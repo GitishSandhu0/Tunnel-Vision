@@ -9,9 +9,7 @@ const nextConfig = {
       },
     ];
   },
-  experimental: {
-    serverComponentsExternalPackages: ["three"],
-  },
+  serverExternalPackages: ["three"],
 };
 
 module.exports = nextConfig;
