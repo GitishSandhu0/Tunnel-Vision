@@ -5,9 +5,23 @@ import type {
   UploadJob,
   UploadResponse,
 } from "@/types";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+async function getAccessToken(): Promise<string | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const supabase = createSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
+}
 
 // ─── Generic fetch wrapper ────────────────────────────────────────
 async function apiFetch<T>(
@@ -15,14 +29,20 @@ async function apiFetch<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const url = `${BACKEND_URL}${path}`;
+  const token = await getAccessToken();
+
+  const headers = new Headers(options.headers || {});
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   try {
     const res = await fetch(url, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
+      headers,
     });
 
     if (!res.ok) {
@@ -50,6 +70,8 @@ export async function uploadFile(
   file: File,
   onProgress?: (pct: number) => void
 ): Promise<ApiResponse<UploadResponse>> {
+  const token = await getAccessToken();
+
   return new Promise((resolve) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -89,6 +111,9 @@ export async function uploadFile(
     });
 
     xhr.open("POST", `${BACKEND_URL}/ingest/upload`);
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
     xhr.send(formData);
   });
 }
@@ -97,8 +122,8 @@ export async function uploadFile(
 export async function getGraphData(
   userId?: string
 ): Promise<ApiResponse<GraphData>> {
-  const query = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
-  return apiFetch<GraphData>(`/graph/data${query}`);
+  void userId;
+  return apiFetch<GraphData>("/graph/data");
 }
 
 // ─── Recommendations ──────────────────────────────────────────────
@@ -107,7 +132,7 @@ export async function getRecommendations(
   limit = 10
 ): Promise<ApiResponse<Recommendation[]>> {
   const params = new URLSearchParams({ limit: String(limit) });
-  if (userId) params.set("user_id", userId);
+  void userId;
   return apiFetch<Recommendation[]>(`/recommendations?${params.toString()}`);
 }
 

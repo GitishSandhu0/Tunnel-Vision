@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from neo4j.exceptions import Neo4jError
 
-from app.core.neo4j_client import get_driver
+from app.core.neo4j_client import get_driver, get_session_kwargs
 from app.models.gdelt import GDELTArticle
 from app.models.tunnel_vision import LearningBridge, TunnelVisionReport, WorldEvent
 from app.services.gdelt.world_today import _extract_categories
@@ -60,7 +60,7 @@ async def refresh_world_today_in_neo4j(articles: List[GDELTArticle]) -> int:
     driver = get_driver()
     written = 0
 
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
         for article in articles:
             if not article.url:
                 continue
@@ -222,7 +222,7 @@ async def compute_tunnel_vision_score(user_id: str) -> TunnelVisionReport:
     """
     driver = get_driver()
 
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
         # 1. All WorldEvent nodes (most recent first, cap at 50)
         all_events_result = await session.run(
             """

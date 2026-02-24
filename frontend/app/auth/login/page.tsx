@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Sparkles, LogIn } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signIn } from "./actions";
 import ParticleBackground from "@/components/ui/ParticleBackground";
 import Button from "@/components/ui/Button";
 
@@ -24,19 +24,28 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    const formData = new FormData();
+    formData.set("email", email.trim());
+    formData.set("password", password);
 
-    if (authError) {
-      setError(authError.message);
+    const errorMessage = await signIn(formData);
+    if (errorMessage) {
+      setError(errorMessage);
       setLoading(false);
       return;
     }
 
-    window.location.href = next;
+    let destination = "/dashboard";
+    try {
+      const parsed = new URL(next, window.location.origin);
+      if (parsed.origin === window.location.origin) {
+        destination = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+      }
+    } catch {
+      // Ignore invalid URL values and keep fallback destination.
+    }
+
+    window.location.replace(destination);
   }
 
   return (

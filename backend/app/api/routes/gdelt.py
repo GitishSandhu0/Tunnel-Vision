@@ -87,7 +87,7 @@ async def enrich_graph_with_gdelt(
         logger.error("Failed to fetch graph stats for user %s: %s", user_id, exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Could not retrieve graph data. Please try again.",
+            detail="GDELT - Could not retrieve graph data. Please try again.",
         ) from exc
 
     top_entities = [e["name"] for e in stats.top_entities[:_ENRICH_TOP_N]]

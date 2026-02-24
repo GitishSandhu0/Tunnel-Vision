@@ -4,7 +4,12 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator, Dict, Optional
 
-from neo4j import AsyncDriver, AsyncGraphDatabase, AsyncResult
+from neo4j import (
+    AsyncDriver,
+    AsyncGraphDatabase,
+    AsyncResult,
+    NotificationDisabledClassification,
+)
 from neo4j.exceptions import Neo4jError, ServiceUnavailable
 
 from app.core.config import get_settings
@@ -31,9 +36,26 @@ def get_driver() -> AsyncDriver:
             max_connection_lifetime=3600,       # seconds
             max_connection_pool_size=50,
             connection_acquisition_timeout=30,  # seconds
+            notifications_disabled_classifications=(
+                NotificationDisabledClassification.UNRECOGNIZED,
+            ),
         )
         logger.info("Neo4j AsyncDriver created for URI: %s", settings.NEO4J_URI)
     return _driver
+
+
+def get_session_kwargs(database: str | None = None) -> Dict[str, str]:
+    """
+    Build kwargs for driver.session().
+
+    If no database is provided (or configured), the Neo4j user's default/home
+    database is used.
+    """
+    if database is None:
+        configured = get_settings().NEO4J_DATABASE.strip()
+        database = configured or None
+
+    return {"database": database} if database else {}
 
 
 async def close_driver() -> None:
@@ -49,7 +71,7 @@ async def close_driver() -> None:
 async def execute_query(
     query: str,
     params: Optional[Dict[str, Any]] = None,
-    database: str = "neo4j",
+    database: str | None = None,
 ) -> AsyncGenerator[AsyncResult, None]:
     """
     Async context manager that runs a single Cypher query inside an auto-commit
@@ -60,7 +82,7 @@ async def execute_query(
             records = await result.fetch(100)
     """
     driver = get_driver()
-    async with driver.session(database=database) as session:
+    async with driver.session(**get_session_kwargs(database)) as session:
         try:
             result = await session.run(query, params or {})
             yield result

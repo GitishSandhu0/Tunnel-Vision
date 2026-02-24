@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from neo4j.exceptions import Neo4jError
 
-from app.core.neo4j_client import get_driver
+from app.core.neo4j_client import get_driver, get_session_kwargs
 from app.models.entities import ExtractionResult
 from app.models.gdelt import GDELTArticle
 from app.models.graph import GraphData, GraphEdge, GraphNode, GraphStats
@@ -32,7 +32,7 @@ async def ingest_user_entities(user_id: str, result: ExtractionResult) -> None:
       it multiple times with the same data produces exactly one node/edge.
     """
     driver = get_driver()
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
         # 1. Upsert the User node
         await session.run(
             """
@@ -125,7 +125,7 @@ async def get_user_graph(user_id: str) -> Optional[GraphData]:
     nodes: Dict[str, GraphNode] = {}
     links: List[GraphEdge] = []
 
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
         # Fetch User → Entity relationships
         result = await session.run(
             """
@@ -228,7 +228,7 @@ async def get_graph_stats(user_id: str) -> GraphStats:
     """Return lightweight aggregate stats for the dashboard summary cards."""
     driver = get_driver()
 
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
         result = await session.run(
             """
             MATCH (u:User {id: $user_id})
@@ -308,7 +308,7 @@ async def ingest_gdelt_articles(entity_name: str, articles: List[GDELTArticle]) 
     driver = get_driver()
     written = 0
 
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
         # Verify the Entity node exists before attempting to link articles to it.
         entity_check = await session.run(
             "MATCH (e:Entity {name: $name}) RETURN count(e) AS cnt",
@@ -394,7 +394,21 @@ async def get_recommendations_from_neo4j(
     driver = get_driver()
     rows: List[Dict[str, Any]] = []
 
-    async with driver.session(database="neo4j") as session:
+    async with driver.session(**get_session_kwargs()) as session:
+        # Avoid running relationship-specific path queries when the user has
+        # no graph footprint yet; this keeps startup UX quiet and fast.
+        preflight = await session.run(
+            """
+            MATCH (u:User {id: $user_id})
+            OPTIONAL MATCH (u)-[r]->(:Entity)
+            RETURN count(r) AS rel_count
+            """,
+            user_id=user_id,
+        )
+        preflight_record = await preflight.single()
+        if not preflight_record or int(preflight_record["rel_count"] or 0) == 0:
+            return rows
+
         result = await session.run(
             """
             MATCH (u:User {id: $user_id})-[ri:INTERESTED_IN]->(e:Entity)

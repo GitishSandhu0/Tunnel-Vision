@@ -39,7 +39,7 @@ async def get_graph_data(
         logger.error("Failed to fetch graph data for user %s: %s", user_id, exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Could not retrieve graph data. Please try again.",
+            detail="Graph - Could not retrieve graph data. Please try again.",
         ) from exc
 
     if graph_data is None:

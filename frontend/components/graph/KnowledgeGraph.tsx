@@ -4,14 +4,12 @@ import { useRef, useCallback, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Tag, Link2 } from "lucide-react";
+import type { ForceGraphMethods } from "react-force-graph-3d";
 import type { GraphData, GraphNode } from "@/types";
 
 // ForceGraph3D must be loaded client-side only (uses WebGL / Three.js)
 const ForceGraph3D = dynamic(
-  async () => {
-    const mod = await import("react-force-graph");
-    return mod.ForceGraph3D;
-  },
+  () => import("react-force-graph-3d"),
   { ssr: false }
 );
 
@@ -129,7 +127,7 @@ interface KnowledgeGraphProps {
 }
 
 export default function KnowledgeGraph({ graphData }: KnowledgeGraphProps) {
-  const fgRef = useRef<{ cameraPosition: (pos: object, look: object, ms: number) => void } | null>(null);
+  const fgRef = useRef<ForceGraphMethods>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
@@ -194,7 +192,6 @@ export default function KnowledgeGraph({ graphData }: KnowledgeGraphProps) {
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
-      {/* @ts-expect-error – react-force-graph typings are loose */}
       <ForceGraph3D
         ref={fgRef}
         width={dimensions.width}
