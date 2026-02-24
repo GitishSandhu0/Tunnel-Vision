@@ -38,11 +38,7 @@ export async function middleware(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/auth/login";
       redirectUrl.searchParams.set("next", pathname);
-      const response = NextResponse.redirect(redirectUrl);
-      supabaseResponse.cookies
-        .getAll()
-        .forEach((cookie) => response.cookies.set(cookie));
-      return response;
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
@@ -54,11 +50,7 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/dashboard";
     redirectUrl.search = "";
-    const response = NextResponse.redirect(redirectUrl);
-    supabaseResponse.cookies
-      .getAll()
-      .forEach((cookie) => response.cookies.set(cookie));
-    return response;
+    return NextResponse.redirect(redirectUrl);
   }
 
   return supabaseResponse;

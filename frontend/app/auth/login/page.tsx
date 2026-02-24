@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Sparkles, LogIn } from "lucide-react";
-import { signIn } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 import ParticleBackground from "@/components/ui/ParticleBackground";
 import Button from "@/components/ui/Button";
 
@@ -24,31 +24,19 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const formData = new FormData();
-    formData.set("email", email.trim());
-    formData.set("password", password);
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
 
-    const errorMessage = await signIn(formData);
-    if (errorMessage) {
-      setError(errorMessage);
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
       return;
     }
 
-    // Validate `next` to prevent open redirect — resolve against current origin
-    // and verify the destination stays on the same host.
-    let dest = "/dashboard";
-    try {
-      const url = new URL(next, window.location.origin);
-      if (url.origin === window.location.origin) {
-        dest = url.pathname + url.search + url.hash;
-      }
-    } catch {
-      // `next` is not a parseable URL — fall back to /dashboard
-    }
-    // Hard navigation ensures all session cookies are committed before the
-    // browser requests the protected route, so the middleware sees the session.
-    window.location.replace(dest);
+    window.location.href = next;
   }
 
   return (
