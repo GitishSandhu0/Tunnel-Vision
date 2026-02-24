@@ -5,7 +5,6 @@ out/
 dist/
 build/
 package-lock.json
-*.tsbuildinfo
 
 # ─── Python / FastAPI ──────────────────────────────────────────────
 __pycache__/
