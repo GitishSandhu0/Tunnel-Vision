@@ -27,14 +27,28 @@ export default function LoginPage() {
     const formData = new FormData();
     formData.set("email", email.trim());
     formData.set("password", password);
-    formData.set("next", next);
 
     const errorMessage = await signIn(formData);
     if (errorMessage) {
       setError(errorMessage);
       setLoading(false);
+      return;
     }
-    // On success, redirect() in the server action handles navigation
+
+    // Validate `next` to prevent open redirect — resolve against current origin
+    // and verify the destination stays on the same host.
+    let dest = "/dashboard";
+    try {
+      const url = new URL(next, window.location.origin);
+      if (url.origin === window.location.origin) {
+        dest = url.pathname + url.search + url.hash;
+      }
+    } catch {
+      // `next` is not a parseable URL — fall back to /dashboard
+    }
+    // Hard navigation ensures all session cookies are committed before the
+    // browser requests the protected route, so the middleware sees the session.
+    window.location.replace(dest);
   }
 
   return (
